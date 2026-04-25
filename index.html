@@ -682,34 +682,16 @@ const CLIENT_NAMES = {
   "act_1500110792116816": "Vital Hub",
 };
 
-async function doLogin() {
+function doLogin() {
   const user = document.getElementById('login-user').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   const cred = CREDENTIALS[user];
-  // Map username to email for Firebase Auth
-  const emailMap = {
-    "admin": "admin@diogo.com",
-    "diogo": "diogo@diogo.com"
-  };
-  const email = emailMap[user];
-  if (!email || !cred) {
+  const effectivePass = getEffectivePassword(user);
+  if (!cred || effectivePass !== pass) {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('login-pass').value = '';
     return;
   }
-  
-  const loginBtn = document.querySelector('#login-overlay .login-btn');
-  if (loginBtn) { loginBtn.textContent = 'Entrando...'; loginBtn.disabled = true; }
-  
-  try {
-    await window._fb.loginUser(email, pass);
-  } catch(e) {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('login-pass').value = '';
-    if (loginBtn) { loginBtn.textContent = 'Entrar'; loginBtn.disabled = false; }
-    return;
-  }
-  if (loginBtn) { loginBtn.textContent = 'Entrar'; loginBtn.disabled = false; }
   document.getElementById('login-overlay').style.display = 'none';
   const accountId = cred.act;
   const clientName = CLIENT_NAMES[accountId] || user;
@@ -1320,10 +1302,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-async function doLogout() {
+function doLogout() {
   if (!confirm('Deseja sair?')) return;
   clearSession();
-  if (window._fb) await window._fb.logoutUser();
   location.reload();
 }
 
@@ -1428,7 +1409,6 @@ function onCrmClientChange() {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAN4JLEpSS9WaBu9F-mWHS72Mo2w5231E",
@@ -1442,7 +1422,6 @@ function onCrmClientChange() {
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const auth = getAuth(app);
 
   window._fb = {
     async getLeads() {
@@ -1466,12 +1445,6 @@ function onCrmClientChange() {
     async getPasswords() {
       const snap = await getDocs(collection(db, 'passwords'));
       return snap.docs.map(d => ({ user: d.id, pass: d.data().pass }));
-    },
-    async loginUser(email, password) {
-      return await signInWithEmailAndPassword(auth, email, password);
-    },
-    async logoutUser() {
-      return await signOut(auth);
     },
     async savePassword(user, pass) {
       await updateDoc(doc(db, 'passwords', user), { pass }).catch(async () => {
@@ -1566,10 +1539,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-async function doLogout() {
+function doLogout() {
   if (!confirm('Deseja sair?')) return;
   clearSession();
-  if (window._fb) await window._fb.logoutUser();
   location.reload();
 }
 
@@ -2091,7 +2063,6 @@ function onCrmClientChange() {
 
 <script>
 const STORAGE_KEY = 'meta_ads_clients_v2';
-const FIXED_TOKEN = "EAAL58zg0HzoBRdnOnZB7MQV6gYZC33k0hWhYRwFjCxFPxnuQWIAdxRDWdon9fXGCzKv5xZB9jFPLA4k4ZA3nt58Jyp8Kx5LNV1nta40ITHgG8rereYWff3ZATnLdwNQ8MKyXAjrg9sm5h2S7BJws0FvjhGRD7YSuhTbjZBf0XmWENYGjiwLZCLVC8vP5VcjYQ1u";
 let activeClient = null;
 let isAdmin = false;
 
@@ -2297,6 +2268,7 @@ async function loadData() {
   }
 }
 
+const FIXED_TOKEN = "EAAL58zg0HzoBReKLADrMyNrl8fbqC10wtRA5OehrO5d7uqZAQiKNeaZAgSmmh8HTh1ex6mpyFAgRgoFRdJaDdsTJHh9ngENNB0HTpTbqz017cSS2varNrNSXmEYZBOtL55zl4RBEy2avyFqrBVmsLZBpOEjzvwylWNqYezzsZBuaW4ZCKoyygJZCIeZCQ2HNstil";
 
 const today = new Date();
 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -2450,34 +2422,16 @@ const CLIENT_NAMES = {
   "act_1500110792116816": "Vital Hub",
 };
 
-async function doLogin() {
+function doLogin() {
   const user = document.getElementById('login-user').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   const cred = CREDENTIALS[user];
-  // Map username to email for Firebase Auth
-  const emailMap = {
-    "admin": "admin@diogo.com",
-    "diogo": "diogo@diogo.com"
-  };
-  const email = emailMap[user];
-  if (!email || !cred) {
+  const effectivePass = getEffectivePassword(user);
+  if (!cred || effectivePass !== pass) {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('login-pass').value = '';
     return;
   }
-  
-  const loginBtn = document.querySelector('#login-overlay .login-btn');
-  if (loginBtn) { loginBtn.textContent = 'Entrando...'; loginBtn.disabled = true; }
-  
-  try {
-    await window._fb.loginUser(email, pass);
-  } catch(e) {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('login-pass').value = '';
-    if (loginBtn) { loginBtn.textContent = 'Entrar'; loginBtn.disabled = false; }
-    return;
-  }
-  if (loginBtn) { loginBtn.textContent = 'Entrar'; loginBtn.disabled = false; }
   document.getElementById('login-overlay').style.display = 'none';
   const accountId = cred.act;
   const clientName = CLIENT_NAMES[accountId] || user;
@@ -3088,10 +3042,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-async function doLogout() {
+function doLogout() {
   if (!confirm('Deseja sair?')) return;
   clearSession();
-  if (window._fb) await window._fb.logoutUser();
   location.reload();
 }
 
