@@ -445,7 +445,9 @@ tr:hover td { background: var(--surface2); }
     width: 420px; background: var(--surface);
     border: 1px solid var(--border2); border-radius: 20px;
     padding: 32px 28px;
+    max-height: 90vh; overflow-y: auto; scrollbar-width: none;
   }
+  .modal-box::-webkit-scrollbar { display: none; }
   .modal-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
   .modal-field { margin-bottom: 14px; }
   .modal-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; display: block; margin-bottom: 6px; }
@@ -3604,7 +3606,12 @@ function openLeadModal() {
   document.getElementById('lead-stage').value = 'novo';
   document.getElementById('modal-title').textContent = 'Novo lead';
   document.getElementById('field-plantao').style.display = clinica ? 'block' : 'none';
-  document.getElementById('field-valor').style.display = 'none';
+  document.getElementById('field-valor').style.display = 'block';
+  document.getElementById('field-motivo-perda').style.display = 'none';
+  document.getElementById('lead-stage').onchange = function() {
+    const isPerdido = ['perdido','ncompareceu'].includes(this.value);
+    document.getElementById('field-motivo-perda').style.display = isPerdido ? 'block' : 'none';
+  };
   // update stage options
   const stageSelect = document.getElementById('lead-stage');
   const stages = clinica ? STAGES_CLINICA : STAGES_DEFAULT;
@@ -3623,7 +3630,13 @@ function editLead(id) {
   document.getElementById('lead-plantao').value = lead.plantao || '';
   document.getElementById('lead-valor').value = lead.valor || '';
   document.getElementById('field-plantao').style.display = clinica ? 'block' : 'none';
-  document.getElementById('field-valor').style.display = clinica ? 'block' : 'none';
+  document.getElementById('field-valor').style.display = 'block';
+  const isPerdidoEdit = ['perdido','ncompareceu'].includes(lead.stage);
+  document.getElementById('field-motivo-perda').style.display = isPerdidoEdit ? 'block' : 'none';
+  document.getElementById('lead-stage').onchange = function() {
+    const isPerdido = ['perdido','ncompareceu'].includes(this.value);
+    document.getElementById('field-motivo-perda').style.display = isPerdido ? 'block' : 'none';
+  };
   const stageSelect = document.getElementById('lead-stage');
   const stages = clinica ? STAGES_CLINICA : STAGES_DEFAULT;
   stageSelect.innerHTML = stages.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
